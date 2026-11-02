@@ -1,11 +1,29 @@
 import { NavLink } from "react-router-dom";
-import "./Sidebar.css";
+import {
+  House,
+  Languages,
+  BookOpen,
+  Code2,
+  NotebookPen,
+  Search,
+  Settings,
+  PanelLeftClose,
+  PanelLeftOpen,
+  X,
+} from "lucide-react";
+
+import "./sidebar.css";
 
 const navigation = [
   {
     title: "工作空間",
     items: [
-      { label: "總覽", subtitle: "Overview", path: "/", icon: "⌂" },
+      {
+        label: "總覽",
+        subtitle: "Overview",
+        path: "/",
+        icon: House,
+      },
     ],
   },
   {
@@ -15,25 +33,25 @@ const navigation = [
         label: "英文單字",
         subtitle: "English Vocabulary",
         path: "/vocabulary/english",
-        icon: "Aa",
+        icon: Languages,
       },
       {
         label: "日文單字",
         subtitle: "Japanese Vocabulary",
         path: "/vocabulary/japanese",
-        icon: "あ",
+        icon: Languages,
       },
       {
         label: "英文文法",
         subtitle: "English Grammar",
         path: "/grammar/english",
-        icon: "文",
+        icon: BookOpen,
       },
       {
         label: "日文文法",
         subtitle: "Japanese Grammar",
         path: "/grammar/japanese",
-        icon: "文",
+        icon: BookOpen,
       },
     ],
   },
@@ -44,7 +62,7 @@ const navigation = [
         label: "程式與技術筆記",
         subtitle: "Programming",
         path: "/programming",
-        icon: "</>",
+        icon: Code2,
       },
     ],
   },
@@ -55,38 +73,63 @@ const navigation = [
         label: "一般筆記",
         subtitle: "General Notes",
         path: "/notes",
-        icon: "▤",
+        icon: NotebookPen,
       },
     ],
   },
   {
     title: "系統",
     items: [
-      { label: "搜尋", subtitle: "Search", path: "/search", icon: "⌕" },
-      { label: "設定", subtitle: "Settings", path: "/settings", icon: "⚙" },
+      {
+        label: "搜尋",
+        subtitle: "Search",
+        path: "/search",
+        icon: Search,
+      },
+      {
+        label: "設定",
+        subtitle: "Settings",
+        path: "/settings",
+        icon: Settings,
+      },
     ],
   },
 ];
 
-function Sidebar({ isCollapsed, onToggle }) {
-  return (
-    <aside className={`sidebar ${isCollapsed ? "collapsed" : ""}`}>
-      <div className="sidebar-top">
-        <div className="brand">
-          <div className="brand-logo">K</div>
+function Sidebar({
+  isCollapsed,
+  onToggle,
+  isMobileOpen,
+  onClose,
+  onNavigate,
+}) {
+  const toggleState = isMobileOpen
+    ? { icon: X, label: "關閉選單", action: onClose }
+    : isCollapsed
+      ? { icon: PanelLeftOpen, label: "展開側邊欄", action: onToggle }
+      : { icon: PanelLeftClose, label: "收合側邊欄", action: onToggle };
 
-          {!isCollapsed && (
+  const ToggleIcon = toggleState.icon;
+
+  return (
+    <aside
+      className={`sidebar ${isCollapsed ? "collapsed" : ""} ${isMobileOpen ? "mobile-open" : ""}`}
+    >
+      <div className="sidebar-top">
+        {!isCollapsed && (
+          <div className="brand">
+            <div className="brand-logo">K</div>
             <span className="brand-name">Knowledge Space</span>
-          )}
-        </div>
+          </div>
+        )}
 
         <button
           className="sidebar-toggle"
-          onClick={onToggle}
-          title={isCollapsed ? "展開側邊欄" : "收合側邊欄"}
-          aria-label={isCollapsed ? "展開側邊欄" : "收合側邊欄"}
+          onClick={toggleState.action}
+          title={toggleState.label}
+          aria-label={toggleState.label}
         >
-          {isCollapsed ? "»" : "«"}
+          <ToggleIcon size={19} strokeWidth={1.8} />
         </button>
       </div>
 
@@ -97,25 +140,32 @@ function Sidebar({ isCollapsed, onToggle }) {
               <p className="nav-heading">{group.title}</p>
             )}
 
-            {group.items.map((item) => (
-              <NavLink
-                key={item.path}
-                to={item.path}
-                end={item.path === "/"}
-                title={isCollapsed ? item.label : undefined}
-                className={({ isActive }) =>
-                  `nav-item ${isActive ? "active" : ""}`
-                }
-              >
-                <span className="nav-icon">{item.icon}</span>
+            {group.items.map((item) => {
+              const Icon = item.icon;
 
-                {!isCollapsed && (
-                  <span className="nav-label">
-                    {item.label}
+              return (
+                <NavLink
+                  key={item.path}
+                  to={item.path}
+                  end={item.path === "/"}
+                  title={isCollapsed ? item.label : undefined}
+                  className={({ isActive }) =>
+                    `nav-item ${isActive ? "active" : ""}`
+                  }
+                  onClick={onNavigate}
+                >
+                  <span className="nav-icon">
+                    <Icon size={19} strokeWidth={1.8} />
                   </span>
-                )}
-              </NavLink>
-            ))}
+
+                  {!isCollapsed && (
+                    <span className="nav-label">
+                      {item.label}
+                    </span>
+                  )}
+                </NavLink>
+              );
+            })}
           </div>
         ))}
       </nav>

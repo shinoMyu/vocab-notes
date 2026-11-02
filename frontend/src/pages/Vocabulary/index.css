@@ -1,0 +1,288 @@
+/* ===== 版面容器 ===== */
+.vocabulary-workspace {
+  width: 100%;
+  max-width: var(--content-max-width);
+  min-width: 0;
+  margin: 0 auto;
+}
+
+.vocabulary-page-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--spacing-4);
+  margin-bottom: var(--spacing-4);
+}
+
+.vocabulary-heading-info h1 {
+  margin: 0;
+  color: var(--color-text-primary);
+  font-size: var(--font-size-2xl);
+  font-weight: var(--font-weight-semibold);
+}
+
+.vocabulary-eyebrow {
+  margin: 0 0 var(--spacing-2);
+  color: var(--color-text-muted);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-semibold);
+  letter-spacing: 0.08em;
+}
+
+.vocab-count {
+  display: inline-flex;
+  align-items: center;
+  width: fit-content;
+  margin-top: var(--spacing-2);
+  padding: 4px 9px;
+  border-radius: 999px;
+  background: var(--color-bg-hover);
+  color: var(--color-text-secondary);
+  font-size: var(--font-size-xs);
+  font-variant-numeric: tabular-nums;
+}
+
+/* ===== 共用按鈕 ===== */
+
+.primary-button,
+.secondary-button,
+.delete-button {
+  border: 1px solid transparent;
+  border-radius: var(--radius-md);
+  padding: 9px 14px;
+  font-size: var(--font-size-xs);
+  cursor: pointer;
+  transition: background var(--transition-fast);
+}
+
+.primary-button {
+  padding: var(--spacing-2) var(--spacing-4);
+  border-radius: var(--radius-sm);
+  background: var(--color-button-primary);
+  color: #fff;
+  font-size: var(--font-size-sm);
+}
+
+.primary-button:hover {
+  background: var(--color-button-primary-hover);
+}
+
+.secondary-button {
+  border-color: var(--color-border);
+  background: var(--color-bg-card);
+  color: var(--color-text-primary);
+}
+
+.secondary-button:hover {
+  background: var(--color-bg-hover);
+}
+
+.delete-button {
+  background: var(--color-danger-bg);
+  color: var(--color-danger);
+}
+
+.delete-button:hover {
+  background: #fce0de;
+}
+
+.icon-button {
+  width: 36px;
+  height: 36px;
+  border: none;
+  border-radius: var(--radius-md);
+  background: var(--color-bg-hover);
+  color: var(--color-text-secondary);
+  font-size: var(--font-size-lg);
+  cursor: pointer;
+}
+
+.icon-button:hover {
+  background: #e0e8ed;
+}
+
+/* ===== 瀏覽版面：預設全寬，選取後詳情滑出 ===== */
+
+.vocabulary-browser {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  align-items: start;
+  gap: var(--spacing-5);
+  min-width: 0;
+}
+
+.vocabulary-browser.has-selection {
+  grid-template-columns: minmax(280px, 360px) minmax(0, 1fr);
+}
+
+.vocabulary-browser-sidebar {
+  min-width: 0;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  background: var(--color-bg-card);
+}
+
+.vocabulary-browser.has-selection .vocabulary-browser-sidebar {
+  position: sticky;
+  top: var(--spacing-4);
+  height: calc(100vh - 120px);
+  min-height: 420px;
+  overflow-y: auto;
+}
+
+.vocabulary-browser-content {
+  min-width: 0;
+  min-height: 520px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  background: var(--color-bg-card);
+  animation: detail-slide-in 0.28s ease;
+}
+
+@keyframes detail-slide-in {
+  from {
+    opacity: 0;
+    transform: translateX(28px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* ===== 共用：頻率標記（列表與詳情） ===== */
+
+.vocab-card-freq,
+.detail-freq {
+  display: inline-flex;
+  align-items: baseline;
+  gap: var(--spacing-1);
+  font-size: 13px;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.freq-range {
+  color: var(--color-text-muted);
+  font-size: 11px;
+  font-style: normal;
+  line-height: 1;
+}
+
+.vocab-card-freq i,
+.detail-freq i {
+  align-self: center;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+}
+
+.freq-low { color: #9b8077; }
+.freq-low i { background: #c4a99e; }
+.freq-mid { color: #7b91a5; }
+.freq-mid i { background: #9fb4c6; }
+.freq-high { color: #568a83; }
+.freq-high i { background: #6faaa2; }
+.freq-top { color: #4a6fa0; }
+.freq-top i { background: #6482ad; }
+
+/* ===== 空白狀態 ===== */
+
+.vocabulary-empty {
+  display: flex;
+  align-items: center;
+  min-height: 300px;
+  margin-top: var(--spacing-6);
+  padding: 40px var(--spacing-12);
+  border: 1px solid var(--color-border-light);
+  border-radius: var(--radius-lg);
+  background: linear-gradient(110deg, #ffffff 0%, #f8fafb 100%);
+}
+
+.vocabulary-empty-content {
+  max-width: 480px;
+}
+
+.vocabulary-empty-label {
+  display: inline-block;
+  margin-bottom: 18px;
+  color: var(--color-text-muted);
+  font-size: 11px;
+  font-weight: var(--font-weight-semibold);
+  letter-spacing: 0.14em;
+}
+
+.vocabulary-empty h2 {
+  margin: 0 0 var(--spacing-3);
+  color: var(--color-text-primary);
+  font-size: var(--font-size-xl);
+  font-weight: 650;
+  line-height: var(--line-height-normal);
+}
+
+.vocabulary-empty p {
+  margin: 0;
+  color: var(--color-text-secondary);
+  font-size: var(--font-size-sm);
+  line-height: 2;
+}
+
+/* ===== 響應式 ===== */
+
+@media (max-width: 900px) {
+  .vocabulary-browser.has-selection {
+    grid-template-columns: minmax(220px, 0.9fr) minmax(0, 1.4fr);
+    gap: var(--spacing-3);
+  }
+
+  .vocabulary-browser.has-selection .vocabulary-browser-sidebar {
+    height: calc(100vh - 100px);
+    min-height: 360px;
+  }
+}
+
+@media (max-width: 768px) {
+  .vocabulary-page-heading {
+    align-items: flex-start;
+  }
+
+  .vocabulary-heading-info h1 {
+    font-size: var(--font-size-xl);
+  }
+}
+
+@media (max-width: 650px) {
+  .vocabulary-page-heading {
+    flex-direction: column;
+  }
+
+  .vocabulary-browser.has-selection {
+    grid-template-columns: 1fr;
+  }
+
+  .vocabulary-browser.has-selection .vocabulary-browser-sidebar {
+    position: static;
+    height: auto;
+    min-height: 0;
+    max-height: 320px;
+  }
+
+  .vocabulary-browser-content {
+    min-height: 0;
+  }
+
+  .vocabulary-empty {
+    min-height: 260px;
+    padding: 28px var(--spacing-6);
+  }
+
+  .vocabulary-empty h2 {
+    font-size: 21px;
+  }
+}
+
+@media (max-width: 480px) {
+  .vocabulary-page-heading > .primary-button {
+    width: 100%;
+  }
+}
