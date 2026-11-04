@@ -32,26 +32,20 @@ public class VocabularyEntry {
     @Column(nullable = false, length = 200)
     private String term;
 
-    @Column(nullable = false, columnDefinition = "TEXT")
+    @Column(name = "chinese_explanation", nullable = false, columnDefinition = "TEXT")
     private String chineseExplanation;
 
     @Column(length = 200)
     private String pronunciation;
 
+    @Column(name = "part_of_speech", length = 100)
+    private String partOfSpeech;
+    
     @Column(name = "frequency_rating")
     private Byte frequencyRating;
 
     @Column(columnDefinition = "TEXT")
     private String etymology;
-
-    @Column(columnDefinition = "TEXT")
-    private String collocations;
-
-    @Column(columnDefinition = "TEXT")
-    private String exampleSentence;
-
-    @Column(columnDefinition = "TEXT")
-    private String exampleTranslation;
 
     @Column(columnDefinition = "TEXT")
     private String usageNotes;

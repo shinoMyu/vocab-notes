@@ -321,7 +321,7 @@ function VocabularyForm({ language, onSave, onCancel }) {
                 <span className="vocab-form-section-number">05</span>
                 <div>
                   <h3>collocation</h3>
-                  <p>常見搭配詞，可新增多筆</p>
+                  <p>常見搭配，可新增多筆</p>
                 </div>
               </div>
 

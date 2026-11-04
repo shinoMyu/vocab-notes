@@ -285,7 +285,7 @@ function VocabularyDetailEditor({ entry, onSave, onCancel }) {
         <EditSection
           id="collocation"
           jaLabel="Collocation"
-          zhLabel="常見搭配詞"
+          zhLabel="常見搭配"
         >
           <div className="detail-edit-list">
             {form.collocations.map((item, index) => (

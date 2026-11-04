@@ -1,45 +1,92 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 
 import VocabularyList from "./components/VocabularyList";
 import VocabularyDetail from "./components/VocabularyDetail";
 import VocabularyForm from "./components/VocabularyForm";
 
-import { demoEntries } from "../../data/vocabularyDemo";
+import {
+  createVocabulary,
+  deleteVocabulary,
+  getVocabulary,
+  updateVocabulary,
+} from "../../api/vocabulary";
 
 import "./index.css";
 
-function Vocabulary() {
-  const location = useLocation();
+function toRequest(formData, language) {
+  return {
+    language,
+    term: formData.term,
+    chineseExplanation: formData.chineseExplanation,
+    pronunciation: formData.pronunciation,
+    partOfSpeech: formData.partOfSpeech,
+    frequencyLevel: formData.frequencyLevel,
+    etymology: formData.etymology,
+    usageNotes: formData.usageNotes,
+    collocations: formData.collocations,
+    examples: formData.examples,
+  };
+}
+
+function VocabularyWorkspace({ language, initialEntryId }) {
   const navigate = useNavigate();
-
-  const language = location.pathname.includes("japanese")
-    ? "ja"
-    : "en";
-
   const isEnglish = language === "en";
 
-  const initialEntryId = location.state?.entryId ?? null;
-
-  const [entries, setEntries] = useState(demoEntries);
+  const [entries, setEntries] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [loadError, setLoadError] = useState("");
+  const [actionError, setActionError] = useState("");
+  const [reloadToken, setReloadToken] = useState(0);
   const [pageMode, setPageMode] = useState(
     initialEntryId ? "detail" : "list"
   );
   const [selectedId, setSelectedId] = useState(initialEntryId);
+  const [isSaving, setIsSaving] = useState(false);
 
-  const languageEntries = entries.filter(
-    (entry) => entry.language === language
-  );
+  useEffect(() => {
+    let cancelled = false;
+
+    getVocabulary(language)
+      .then((data) => {
+        if (cancelled) return;
+
+        setEntries(data);
+        setLoadError("");
+      })
+      .catch((requestError) => {
+        if (cancelled) return;
+
+        setEntries([]);
+        setLoadError(requestError.message);
+      })
+      .finally(() => {
+        if (!cancelled) setIsLoading(false);
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [language, reloadToken]);
 
   const selectedEntry =
-    languageEntries.find((entry) => entry.id === selectedId) || null;
+    entries.find((entry) => entry.id === selectedId) || null;
+
+  function handleRetry() {
+    setIsLoading(true);
+    setLoadError("");
+    setReloadToken((value) => value + 1);
+  }
 
   function handleAdd() {
+    setActionError("");
     setPageMode("create");
   }
 
   function handleSelect(entry) {
     if (pageMode === "edit") return;
+
+    setActionError("");
 
     if (selectedId === entry.id) {
       setSelectedId(null);
@@ -59,29 +106,16 @@ function Vocabulary() {
   function handleEdit() {
     if (!selectedEntry) return;
 
+    setActionError("");
     setPageMode("edit");
   }
 
   function handleOpenRelated() {
-    if (!selectedEntry?.relatedTerm) return;
+    if (!selectedEntry?.relatedEntryId) return;
 
-    const targetLanguage = language === "en" ? "ja" : "en";
-    const target = entries.find(
-      (entry) =>
-        entry.language === targetLanguage &&
-        (entry.id === selectedEntry.relatedEntryId ||
-          entry.term === selectedEntry.relatedTerm)
-    );
-
-    if (!target) return;
-
-    setSelectedId(target.id);
-    setPageMode("detail");
     navigate(
-      target.language === "ja"
-        ? "/vocabulary/japanese"
-        : "/vocabulary/english",
-      { state: { entryId: target.id } }
+      language === "en" ? "/vocabulary/japanese" : "/vocabulary/english",
+      { state: { entryId: selectedEntry.relatedEntryId } }
     );
   }
 
@@ -89,50 +123,73 @@ function Vocabulary() {
     setPageMode(pageMode === "edit" ? "detail" : "list");
   }
 
-  function handleSave(formData) {
-    if (pageMode === "create") {
-      const newEntry = {
-        ...formData,
-        id: crypto.randomUUID(),
-        language,
-      };
+  async function handleSave(formData) {
+    if (isSaving) return;
 
-      setEntries((previous) => [...previous, newEntry]);
-      setSelectedId(newEntry.id);
-    } else if (pageMode === "edit" && selectedEntry) {
-      setEntries((previous) =>
-        previous.map((entry) =>
-          entry.id === selectedEntry.id
-            ? {
-              ...formData,
-              id: entry.id,
-              language,
-            }
-            : entry
-        )
-      );
+    setIsSaving(true);
+    setActionError("");
 
-      setSelectedId(selectedEntry.id);
+    try {
+      if (pageMode === "create") {
+        const savedEntry = await createVocabulary(
+          toRequest(formData, language)
+        );
+
+        setEntries((previous) => [...previous, savedEntry]);
+        setSelectedId(savedEntry.id);
+      } else if (selectedEntry) {
+        const savedEntry = await updateVocabulary(
+          selectedEntry.id,
+          toRequest(formData, language)
+        );
+
+        setEntries((previous) =>
+          previous.map((entry) =>
+            entry.id === savedEntry.id ? savedEntry : entry
+          )
+        );
+        setSelectedId(savedEntry.id);
+      }
+
+      setPageMode("detail");
+    } catch (requestError) {
+      setActionError(requestError.message);
+    } finally {
+      setIsSaving(false);
     }
-
-    setPageMode("detail");
   }
 
-  function handleDelete(id) {
-    if (!window.confirm("確定要刪除這個單字嗎？")) {
-      return;
+  async function handleDelete(id) {
+    setActionError("");
+
+    try {
+      await deleteVocabulary(id);
+
+      setEntries((previous) =>
+        previous.filter((entry) => entry.id !== id)
+      );
+
+      setSelectedId(null);
+      setPageMode("list");
+    } catch (requestError) {
+      setActionError(requestError.message);
     }
-
-    setEntries((previous) =>
-      previous.filter((entry) => entry.id !== id)
-    );
-
-    setSelectedId(null);
-    setPageMode("list");
   }
 
   return (
     <div className={`vocabulary-workspace ${pageMode}`}>
+      {actionError && (
+        <div className="vocabulary-error" role="alert">
+          <span>{actionError}</span>
+          <button
+            type="button"
+            onClick={() => setActionError("")}
+            aria-label="關閉錯誤訊息"
+          >
+            ×
+          </button>
+        </div>
+      )}
 
       {(pageMode === "list" ||
         pageMode === "detail" ||
@@ -149,9 +206,9 @@ function Vocabulary() {
 
               <h1>{isEnglish ? "英文單字" : "日文單字"}</h1>
 
-              {languageEntries.length > 0 && (
+              {!isLoading && !loadError && entries.length > 0 && (
                 <span className="vocab-count">
-                  共 {languageEntries.length} 個單字
+                  共 {entries.length} 個單字
                 </span>
               )}
             </div>
@@ -166,7 +223,34 @@ function Vocabulary() {
           </header>
 
           {/* Content */}
-          {languageEntries.length === 0 ? (
+          {isLoading ? (
+            <section className="vocabulary-empty">
+              <div className="vocabulary-empty-content">
+                <span className="vocabulary-empty-label">LOADING</span>
+                <p>正在載入單字…</p>
+              </div>
+            </section>
+          ) : loadError ? (
+            <section className="vocabulary-empty">
+              <div className="vocabulary-empty-content">
+                <span className="vocabulary-empty-label">
+                  CONNECTION ERROR
+                </span>
+
+                <h2>無法載入單字</h2>
+
+                <p>{loadError}</p>
+
+                <button
+                  type="button"
+                  className="secondary-button vocabulary-retry"
+                  onClick={handleRetry}
+                >
+                  重新載入
+                </button>
+              </div>
+            </section>
+          ) : entries.length === 0 ? (
             <section className="vocabulary-empty">
               <div className="vocabulary-empty-content">
                 <span className="vocabulary-empty-label">
@@ -188,7 +272,7 @@ function Vocabulary() {
             >
               <section className="vocabulary-browser-sidebar">
                 <VocabularyList
-                  entries={languageEntries}
+                  entries={entries}
                   selectedId={selectedEntry?.id}
                   onSelect={handleSelect}
                 />
@@ -224,6 +308,22 @@ function Vocabulary() {
       )}
 
     </div>
+  );
+}
+
+function Vocabulary() {
+  const location = useLocation();
+
+  const language = location.pathname.includes("japanese")
+    ? "ja"
+    : "en";
+
+  return (
+    <VocabularyWorkspace
+      key={language}
+      language={language}
+      initialEntryId={location.state?.entryId ?? null}
+    />
   );
 }
 

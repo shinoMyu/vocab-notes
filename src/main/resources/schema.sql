@@ -5,7 +5,7 @@ CREATE TABLE vocabulary_entry (
     term VARCHAR(200) NOT NULL,
     chinese_explanation TEXT NOT NULL,
     pronunciation VARCHAR(200),
-    part_of_speech VARCHAR(100) NULL,
+    part_of_speech VARCHAR(100),
     frequency_rating TINYINT,
     etymology TEXT,
     usage_notes TEXT,
@@ -27,12 +27,10 @@ CREATE TABLE vocabulary_entry (
   DEFAULT CHARSET=utf8mb4
   COLLATE=utf8mb4_unicode_ci;
   
-  -- 2. 單字搭配詞
+  -- 2. 單字搭配
 CREATE TABLE vocabulary_collocation (
     id BIGINT NOT NULL AUTO_INCREMENT,
-
     vocabulary_entry_id BIGINT NOT NULL,
-
     phrase VARCHAR(255) NOT NULL,
     explanation TEXT,
     sort_order INT NOT NULL DEFAULT 0,

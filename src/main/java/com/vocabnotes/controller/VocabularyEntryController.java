@@ -1,55 +1,60 @@
 
 package com.vocabnotes.controller;
 
-import com.vocabnotes.entity.VocabularyEntry;
+import com.vocabnotes.dto.VocabularyRequest;
+import com.vocabnotes.dto.VocabularyResponse;
 import com.vocabnotes.service.VocabularyEntryService;
 
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
 @RequestMapping("/api/vocabulary")
+@CrossOrigin(origins = "http://localhost:5173")
 public class VocabularyEntryController {
 
-    private final VocabularyEntryService service;
+    private final VocabularyEntryService vocabularyService;
 
     public VocabularyEntryController(
-            VocabularyEntryService service) {
-        this.service = service;
+            VocabularyEntryService vocabularyService) {
+        this.vocabularyService = vocabularyService;
     }
 
+    // 查詢單字，可依語言篩選
     @GetMapping
-    public List<VocabularyEntry> findAll() {
-        return service.findAll();
+    public List<VocabularyResponse> getAll(
+            @RequestParam(required = false) String language) {
+        return vocabularyService.getAll(language);
     }
 
+    // 查詢單一單字
     @GetMapping("/{id}")
-    public VocabularyEntry findById(@PathVariable Long id) {
-        return service.findById(id);
+    public VocabularyResponse getById(@PathVariable Long id) {
+        return vocabularyService.getById(id);
     }
 
+    // 新增單字
     @PostMapping
-    public ResponseEntity<VocabularyEntry> create(
-            @RequestBody VocabularyEntry entry) {
-        return ResponseEntity
-                .status(HttpStatus.CREATED)
-                .body(service.create(entry));
+    @ResponseStatus(HttpStatus.CREATED)
+    public VocabularyResponse create(
+            @RequestBody VocabularyRequest request) {
+        return vocabularyService.create(request);
     }
 
+    // 修改單字
     @PutMapping("/{id}")
-    public VocabularyEntry update(
+    public VocabularyResponse update(
             @PathVariable Long id,
-            @RequestBody VocabularyEntry entry) {
-        return service.update(id, entry);
+            @RequestBody VocabularyRequest request) {
+        return vocabularyService.update(id, request);
     }
 
+    // 刪除單字
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> delete(
-            @PathVariable Long id) {
-        service.delete(id);
-        return ResponseEntity.noContent().build();
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void delete(@PathVariable Long id) {
+        vocabularyService.delete(id);
     }
 }

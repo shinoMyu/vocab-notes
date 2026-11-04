@@ -1,3 +1,5 @@
+import { useState } from "react";
+
 import VocabularyDetailEditor from "./VocabularyDetailEditor";
 import { FREQUENCY_META, getPartOfSpeechLabel } from "../vocabularyMeta";
 import "./VocabularyDetail.css";
@@ -45,6 +47,9 @@ function VocabularyDetail({
   onDelete,
   onClose,
 }) {
+  const [confirmingId, setConfirmingId] = useState(null);
+  const isConfirmingDelete = confirmingId === entry.id;
+
   if (isEditing) {
     return (
       <VocabularyDetailEditor
@@ -141,28 +146,50 @@ function VocabularyDetail({
         </span>
 
         <div className="detail-action-buttons">
-          <button
-            type="button"
-            className="secondary-button"
-            onClick={onEdit}
-          >
-            編輯
-          </button>
-          <button
-            type="button"
-            className="delete-button"
-            onClick={() => onDelete(entry.id)}
-          >
-            刪除
-          </button>
-          <button
-            type="button"
-            className="icon-button"
-            onClick={onClose}
-            aria-label="關閉詳情"
-          >
-            ×
-          </button>
+          {isConfirmingDelete ? (
+            <div className="detail-delete-confirm" role="alert">
+              <span>確定刪除這個單字？</span>
+              <button
+                type="button"
+                className="secondary-button"
+                onClick={() => setConfirmingId(null)}
+              >
+                取消
+              </button>
+              <button
+                type="button"
+                className="delete-button"
+                onClick={() => onDelete(entry.id)}
+              >
+                刪除
+              </button>
+            </div>
+          ) : (
+            <>
+              <button
+                type="button"
+                className="secondary-button"
+                onClick={onEdit}
+              >
+                編輯
+              </button>
+              <button
+                type="button"
+                className="delete-button"
+                onClick={() => setConfirmingId(entry.id)}
+              >
+                刪除
+              </button>
+              <button
+                type="button"
+                className="icon-button"
+                onClick={onClose}
+                aria-label="關閉詳情"
+              >
+                ×
+              </button>
+            </>
+          )}
         </div>
       </div>
 

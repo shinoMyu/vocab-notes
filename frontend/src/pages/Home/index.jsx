@@ -15,7 +15,7 @@ const knowledgeCategories = [
   {
     title: "英文單字",
     subtitle: "English Vocabulary",
-    description: "整理英文詞彙、語源、搭配詞與實際用法。",
+    description: "整理英文詞彙、語源、常見搭配與實際用法。",
     path: "/vocabulary/english",
     icon: Languages,
   },
