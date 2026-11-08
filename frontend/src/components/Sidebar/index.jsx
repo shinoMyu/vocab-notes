@@ -1,100 +1,8 @@
 import { NavLink } from "react-router-dom";
-import {
-  House,
-  Languages,
-  BookOpen,
-  Code2,
-  NotebookPen,
-  Search,
-  Settings,
-  PanelLeftClose,
-  PanelLeftOpen,
-  X,
-} from "lucide-react";
+import { PanelLeftClose, PanelLeftOpen, X } from "lucide-react";
 
+import { sidebarNavigation as navigation } from "../../data/navigationData";
 import "./sidebar.css";
-
-const navigation = [
-  {
-    title: "工作空間",
-    items: [
-      {
-        label: "總覽",
-        subtitle: "Overview",
-        path: "/",
-        icon: House,
-      },
-    ],
-  },
-  {
-    title: "語言學習",
-    items: [
-      {
-        label: "英文單字",
-        subtitle: "English Vocabulary",
-        path: "/vocabulary/english",
-        icon: Languages,
-      },
-      {
-        label: "日文單字",
-        subtitle: "Japanese Vocabulary",
-        path: "/vocabulary/japanese",
-        icon: Languages,
-      },
-      {
-        label: "英文文法",
-        subtitle: "English Grammar",
-        path: "/grammar/english",
-        icon: BookOpen,
-      },
-      {
-        label: "日文文法",
-        subtitle: "Japanese Grammar",
-        path: "/grammar/japanese",
-        icon: BookOpen,
-      },
-    ],
-  },
-  {
-    title: "技術知識",
-    items: [
-      {
-        label: "程式與技術筆記",
-        subtitle: "Programming",
-        path: "/programming",
-        icon: Code2,
-      },
-    ],
-  },
-  {
-    title: "個人筆記",
-    items: [
-      {
-        label: "一般筆記",
-        subtitle: "General Notes",
-        path: "/notes",
-        icon: NotebookPen,
-      },
-    ],
-  },
-  {
-    title: "系統",
-    items: [
-      {
-        label: "搜尋",
-        subtitle: "Search",
-        path: "/search",
-        icon: Search,
-      },
-      {
-        label: "設定",
-        subtitle: "Settings",
-        path: "/settings",
-        icon: Settings,
-      },
-    ],
-  },
-];
 
 function Sidebar({
   isCollapsed,
@@ -103,6 +11,9 @@ function Sidebar({
   onClose,
   onNavigate,
 }) {
+
+  const isExpanded = !isCollapsed || isMobileOpen;
+
   const toggleState = isMobileOpen
     ? { icon: X, label: "關閉選單", action: onClose }
     : isCollapsed
@@ -116,7 +27,7 @@ function Sidebar({
       className={`sidebar ${isCollapsed ? "collapsed" : ""} ${isMobileOpen ? "mobile-open" : ""}`}
     >
       <div className="sidebar-top">
-        {!isCollapsed && (
+        {isExpanded && (
           <div className="brand">
             <div className="brand-logo">K</div>
             <span className="brand-name">Knowledge Space</span>
@@ -136,7 +47,7 @@ function Sidebar({
       <nav className="sidebar-nav">
         {navigation.map((group) => (
           <div className="nav-group" key={group.title}>
-            {!isCollapsed && (
+            {isExpanded && (
               <p className="nav-heading">{group.title}</p>
             )}
 
@@ -148,7 +59,7 @@ function Sidebar({
                   key={item.path}
                   to={item.path}
                   end={item.path === "/"}
-                  title={isCollapsed ? item.label : undefined}
+                  title={isExpanded ? undefined : item.label}
                   className={({ isActive }) =>
                     `nav-item ${isActive ? "active" : ""}`
                   }
@@ -158,7 +69,7 @@ function Sidebar({
                     <Icon size={19} strokeWidth={1.8} />
                   </span>
 
-                  {!isCollapsed && (
+                  {isExpanded && (
                     <span className="nav-label">
                       {item.label}
                     </span>

@@ -9,8 +9,11 @@ import {
   createVocabulary,
   deleteVocabulary,
   getVocabulary,
+  importVocabulary,
   updateVocabulary,
 } from "../../api/vocabulary";
+import { loadTagColors } from "./tagUtils";
+import { getLanguageMeta } from "./vocabularyMeta";
 
 import "./index.css";
 
@@ -31,7 +34,7 @@ function toRequest(formData, language) {
 
 function VocabularyWorkspace({ language, initialEntryId }) {
   const navigate = useNavigate();
-  const isEnglish = language === "en";
+  const meta = getLanguageMeta(language);
 
   const [entries, setEntries] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -43,6 +46,26 @@ function VocabularyWorkspace({ language, initialEntryId }) {
   );
   const [selectedId, setSelectedId] = useState(initialEntryId);
   const [isSaving, setIsSaving] = useState(false);
+  const [tagColors] = useState(loadTagColors);
+
+  async function handleImport(items) {
+    setActionError("");
+
+    try {
+      const result = await importVocabulary(
+        items.map((item) => ({ ...item, language }))
+      );
+
+      if (result.created > 0) {
+        setReloadToken((value) => value + 1);
+      }
+
+      return result;
+    } catch (requestError) {
+      setActionError(requestError.message);
+      throw requestError;
+    }
+  }
 
   useEffect(() => {
     let cancelled = false;
@@ -198,13 +221,9 @@ function VocabularyWorkspace({ language, initialEntryId }) {
           {/* Page Heading */}
           <header className="vocabulary-page-heading">
             <div className="vocabulary-heading-info">
-              <p className="vocabulary-eyebrow">
-                {isEnglish
-                  ? "ENGLISH VOCABULARY"
-                  : "JAPANESE VOCABULARY"}
-              </p>
+              <p className="vocabulary-eyebrow">{meta.eyebrow}</p>
 
-              <h1>{isEnglish ? "英文單字" : "日文單字"}</h1>
+              <h1>{meta.title}</h1>
 
               {!isLoading && !loadError && entries.length > 0 && (
                 <span className="vocab-count">
@@ -260,7 +279,7 @@ function VocabularyWorkspace({ language, initialEntryId }) {
                 <h2>從第一個單字開始</h2>
 
                 <p>
-                  目前還沒有收錄任何{isEnglish ? "英文" : "日文"}單字，請點擊右上角「新增單字」，
+                  目前還沒有收錄任何{meta.name}單字，請點擊右上角「新增單字」，
                   <br/>將新的單字記錄下來，方便查閲與復習。
                 </p>
               </div>
@@ -274,7 +293,9 @@ function VocabularyWorkspace({ language, initialEntryId }) {
                 <VocabularyList
                   entries={entries}
                   selectedId={selectedEntry?.id}
+                  tagColors={tagColors}
                   onSelect={handleSelect}
+                  onImport={handleImport}
                 />
               </section>
 
@@ -282,6 +303,7 @@ function VocabularyWorkspace({ language, initialEntryId }) {
                 <section className="vocabulary-browser-content">
                   <VocabularyDetail
                     entry={selectedEntry}
+                    tagColors={tagColors}
                     isEditing={pageMode === "edit"}
                     onSave={handleSave}
                     onCancel={handleCancel}

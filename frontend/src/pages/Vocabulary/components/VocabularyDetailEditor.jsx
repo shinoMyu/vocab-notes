@@ -1,145 +1,124 @@
 import { useState } from "react";
 import {
   frequencyOptions,
+  getLanguageMeta,
   partOfSpeechOptions,
 } from "../vocabularyMeta";
+import useVocabularyForm, {
+  buildCleanPayload,
+  createFormFromEntry,
+} from "../hooks/useVocabularyForm";
 
+import DetailSection from "./DetailSection";
 import "./VocabularyDetail.css";
 
-function createId() {
-  return crypto.randomUUID();
-}
-
-function createForm(entry) {
-  return {
-    term: entry.term ?? "",
-    chineseExplanation: entry.chineseExplanation ?? "",
-    partOfSpeech: entry.partOfSpeech ?? [],
-    pronunciation: entry.pronunciation ?? "",
-    frequencyLevel: entry.frequencyLevel ?? "",
-    etymology: entry.etymology ?? "",
-    collocations: (entry.collocations ?? []).map((item) => ({
-      ...item,
-      id: item.id ?? createId(),
-    })),
-    examples: (entry.examples ?? []).map((item) => ({
-      ...item,
-      id: item.id ?? createId(),
-    })),
-    usageNotes: entry.usageNotes ?? "",
-    relatedTerm: entry.relatedTerm ?? "",
-  };
-}
-
-function EditSection({ id, jaLabel, zhLabel, children }) {
-  return (
-    <section className={`detail-section section-${id}`}>
-      <h3 className="detail-section-title">
-        <span className="section-label-ja">{jaLabel}</span>
-        <span className="section-label-zh">{zhLabel}</span>
-      </h3>
-      {children}
-    </section>
-  );
-}
-
 function VocabularyDetailEditor({ entry, onSave, onCancel }) {
-  const isEnglish = entry.language === "en";
+  const meta = getLanguageMeta(entry.language);
   const posOptions = partOfSpeechOptions[entry.language] ?? partOfSpeechOptions.en;
-  const [form, setForm] = useState(() => createForm(entry));
 
-  function updateField(name, value) {
-    setForm((previous) => ({ ...previous, [name]: value }));
+  const {
+    form,
+    handleChange,
+    updateField,
+    togglePartOfSpeech,
+    addCollocation,
+    updateCollocation,
+    removeCollocation,
+    addExample,
+    updateExample,
+    removeExample,
+    moveItem,
+  } = useVocabularyForm(() => createFormFromEntry(entry));
+
+  // 拖曳排序狀態：field 區分搭配詞 / 例句兩個清單
+  const [dragging, setDragging] = useState(null);
+  const [dropTarget, setDropTarget] = useState(null);
+
+  function handleDragStart(field, id) {
+    return (event) => {
+      event.dataTransfer.effectAllowed = "move";
+      event.dataTransfer.setData(
+        "text/plain",
+        JSON.stringify({ field, id })
+      );
+      setDragging({ field, id });
+    };
   }
 
-  function handleChange(event) {
-    updateField(event.target.name, event.target.value);
+  function handleDragEnd() {
+    setDragging(null);
+    setDropTarget(null);
   }
 
-  function togglePartOfSpeech(value) {
-    const current = form.partOfSpeech;
+  // 拖放目標列要擋同清單以外的拖曳物件
+  function rowDragProps(field, id) {
+    return {
+      onDragOver: (event) => {
+        if (!dragging || dragging.field !== field || dragging.id === id) {
+          return;
+        }
 
-    updateField(
-      "partOfSpeech",
-      current.includes(value)
-        ? current.filter((item) => item !== value)
-        : [...current, value]
-    );
+        event.preventDefault();
+        event.dataTransfer.dropEffect = "move";
+        setDropTarget({ field, id });
+      },
+      onDragLeave: () => {
+        setDropTarget((current) =>
+          current && current.field === field && current.id === id
+            ? null
+            : current
+        );
+      },
+      onDrop: (event) => {
+        event.preventDefault();
+
+        try {
+          const data = JSON.parse(event.dataTransfer.getData("text/plain"));
+
+          if (data.field === field) moveItem(field, data.id, id);
+        } catch {
+          // 非本表單產生的拖曳物件，忽略
+        }
+
+        setDragging(null);
+        setDropTarget(null);
+      },
+    };
   }
 
-  function addCollocation() {
-    updateField("collocations", [
-      ...form.collocations,
-      { id: createId(), phrase: "", explanation: "" },
-    ]);
+  function dragClassName(field, id, baseClass) {
+    const classes = [baseClass];
+
+    if (dragging && dragging.field === field && dragging.id === id) {
+      classes.push("is-dragging");
+    }
+
+    if (dropTarget && dropTarget.field === field && dropTarget.id === id) {
+      classes.push("is-drop-target");
+    }
+
+    return classes.join(" ");
   }
 
-  function updateCollocation(id, field, value) {
-    updateField(
-      "collocations",
-      form.collocations.map((item) =>
-        item.id === id ? { ...item, [field]: value } : item
-      )
-    );
-  }
-
-  function removeCollocation(id) {
-    updateField(
-      "collocations",
-      form.collocations.filter((item) => item.id !== id)
-    );
-  }
-
-  function addExample() {
-    updateField("examples", [
-      ...form.examples,
-      { id: createId(), sentence: "", translation: "" },
-    ]);
-  }
-
-  function updateExample(id, field, value) {
-    updateField(
-      "examples",
-      form.examples.map((item) =>
-        item.id === id ? { ...item, [field]: value } : item
-      )
-    );
-  }
-
-  function removeExample(id) {
-    updateField(
-      "examples",
-      form.examples.filter((item) => item.id !== id)
-    );
-  }
+  const dragHandleProps = (field, id) => ({
+    className: "detail-edit-drag",
+    title: "拖曳排序",
+    draggable: true,
+    onDragStart: handleDragStart(field, id),
+    onDragEnd: handleDragEnd,
+  });
 
   function handleSubmit(event) {
     event.preventDefault();
 
     if (!form.term.trim() || !form.chineseExplanation.trim()) return;
 
-    onSave({
-      term: form.term.trim(),
-      chineseExplanation: form.chineseExplanation.trim(),
-      partOfSpeech: form.partOfSpeech,
-      pronunciation: form.pronunciation.trim(),
-      frequencyLevel: form.frequencyLevel,
-      etymology: form.etymology.trim(),
-      collocations: form.collocations
-        .filter((item) => item.phrase.trim())
-        .map(({ phrase, explanation }) => ({
-          phrase: phrase.trim(),
-          explanation: explanation.trim(),
-        })),
-      examples: form.examples
-        .filter((item) => item.sentence.trim())
-        .map(({ sentence, translation }) => ({
-          sentence: sentence.trim(),
-          translation: translation.trim(),
-        })),
-      usageNotes: form.usageNotes.trim(),
-      relatedTerm: form.relatedTerm.trim() || null,
-    });
+    onSave(
+      buildCleanPayload(form, {
+        skipCollocations: !meta.hasCollocations,
+        skipEtymology: !meta.hasEtymology,
+      })
+    );
   }
 
   return (
@@ -148,9 +127,7 @@ function VocabularyDetailEditor({ entry, onSave, onCancel }) {
       onSubmit={handleSubmit}
     >
       <div className="detail-actions">
-        <span className="language-badge">
-          {entry.language === "ja" ? "JAPANESE" : "ENGLISH"}
-        </span>
+        <span className="language-badge">{meta.badge}</span>
 
         <div className="detail-action-buttons">
           <button
@@ -172,7 +149,7 @@ function VocabularyDetailEditor({ entry, onSave, onCancel }) {
           name="term"
           value={form.term}
           onChange={handleChange}
-          placeholder={isEnglish ? "輸入英文單字" : "輸入日文單字"}
+          placeholder={meta.termPlaceholder}
           aria-label="單字"
           required
         />
@@ -182,13 +159,13 @@ function VocabularyDetailEditor({ entry, onSave, onCancel }) {
           name="pronunciation"
           value={form.pronunciation}
           onChange={handleChange}
-          placeholder={isEnglish ? "輸入發音（選填）" : "輸入讀音（選填）"}
+          placeholder={meta.pronunciationEditPlaceholder}
           aria-label="發音"
         />
 
         <div className="detail-edit-group">
           <span className="detail-edit-group-label">
-            {isEnglish ? "詞性" : "品詞"}
+            {meta.posLabel}
             <small>可複選</small>
           </span>
 
@@ -248,7 +225,7 @@ function VocabularyDetailEditor({ entry, onSave, onCancel }) {
         </div>
 
         <label className="detail-edit-related">
-          <span>{isEnglish ? "日文對應單字" : "英文對應單字"}</span>
+          <span>{meta.counterpartLabel}</span>
           <input
             name="relatedTerm"
             value={form.relatedTerm}
@@ -258,7 +235,7 @@ function VocabularyDetailEditor({ entry, onSave, onCancel }) {
       </header>
 
       <div className="detail-sections">
-        <EditSection id="meaning" jaLabel="意味" zhLabel="中文解釋">
+        <DetailSection id="meaning" jaLabel="意味" zhLabel="中文解釋">
           <textarea
             className="detail-edit-textarea"
             name="chineseExplanation"
@@ -268,76 +245,93 @@ function VocabularyDetailEditor({ entry, onSave, onCancel }) {
             aria-label="中文解釋"
             required
           />
-        </EditSection>
+        </DetailSection>
 
-        <EditSection id="etymology" jaLabel="語源" zhLabel="字源與構詞">
-          <textarea
-            className="detail-edit-textarea"
-            name="etymology"
-            value={form.etymology}
-            onChange={handleChange}
-            rows={3}
-            placeholder="記錄單字的來源、字根或構詞方式（選填）"
-            aria-label="語源"
-          />
-        </EditSection>
+        {meta.hasEtymology && (
+          <DetailSection id="etymology" jaLabel="語源" zhLabel="字源與構詞">
+            <textarea
+              className="detail-edit-textarea"
+              name="etymology"
+              value={form.etymology}
+              onChange={handleChange}
+              rows={3}
+              placeholder="記錄單字的來源、字根或構詞方式（選填）"
+              aria-label="語源"
+            />
+          </DetailSection>
+        )}
 
-        <EditSection
-          id="collocation"
-          jaLabel="Collocation"
-          zhLabel="常見搭配"
-        >
-          <div className="detail-edit-list">
-            {form.collocations.map((item, index) => (
-              <div className="detail-edit-row" key={item.id}>
-                <input
-                  className="detail-edit-input"
-                  value={item.phrase}
-                  onChange={(event) =>
-                    updateCollocation(item.id, "phrase", event.target.value)
-                  }
-                  placeholder={`搭配詞 ${index + 1}`}
-                  aria-label={`搭配詞 ${index + 1}`}
-                />
-                <input
-                  className="detail-edit-input"
-                  value={item.explanation}
-                  onChange={(event) =>
-                    updateCollocation(
-                      item.id,
-                      "explanation",
-                      event.target.value
-                    )
-                  }
-                  placeholder="中文說明（選填）"
-                  aria-label={`搭配詞 ${index + 1} 的中文說明`}
-                />
-                <button
-                  type="button"
-                  className="detail-edit-remove"
-                  onClick={() => removeCollocation(item.id)}
-                  aria-label={`刪除搭配詞 ${index + 1}`}
-                >
-                  ×
-                </button>
-              </div>
-            ))}
-          </div>
-
-          <button
-            type="button"
-            className="detail-edit-add"
-            onClick={addCollocation}
+        {meta.hasCollocations && (
+          <DetailSection
+            id="collocation"
+            jaLabel="Collocation"
+            zhLabel="常見搭配"
           >
-            + 新增搭配詞
-          </button>
-        </EditSection>
+            <div className="detail-edit-list">
+              {form.collocations.map((item, index) => (
+                <div
+                  className={dragClassName("collocations", item.id, "detail-edit-row")}
+                  key={item.id}
+                  {...rowDragProps("collocations", item.id)}
+                >
+                  <span {...dragHandleProps("collocations", item.id)}>⋮⋮</span>
 
-        <EditSection id="example" jaLabel="例文" zhLabel="例句與翻譯">
+                  <input
+                    className="detail-edit-input"
+                    value={item.phrase}
+                    onChange={(event) =>
+                      updateCollocation(item.id, "phrase", event.target.value)
+                    }
+                    placeholder={`搭配詞 ${index + 1}`}
+                    aria-label={`搭配詞 ${index + 1}`}
+                  />
+                  <input
+                    className="detail-edit-input"
+                    value={item.explanation}
+                    onChange={(event) =>
+                      updateCollocation(
+                        item.id,
+                        "explanation",
+                        event.target.value
+                      )
+                    }
+                    placeholder="中文說明（選填）"
+                    aria-label={`搭配詞 ${index + 1} 的中文說明`}
+                  />
+                  <button
+                    type="button"
+                    className="detail-edit-remove"
+                    onClick={() => removeCollocation(item.id)}
+                    aria-label={`刪除搭配詞 ${index + 1}`}
+                  >
+                    ×
+                  </button>
+                </div>
+              ))}
+            </div>
+
+            <button
+              type="button"
+              className="detail-edit-add"
+              onClick={() => addCollocation()}
+            >
+              + 新增搭配詞
+            </button>
+          </DetailSection>
+        )}
+
+        <DetailSection id="example" jaLabel="例文" zhLabel="例句與翻譯">
           <div className="detail-edit-list">
             {form.examples.map((item, index) => (
-              <div className="detail-edit-example" key={item.id}>
-                <div className="detail-edit-example-heading">
+              <div
+                className={dragClassName("examples", item.id, "detail-edit-example")}
+                key={item.id}
+              >
+                <div
+                  className="detail-edit-example-heading"
+                  {...rowDragProps("examples", item.id)}
+                >
+                  <span {...dragHandleProps("examples", item.id)}>⋮⋮</span>
                   <span>例句 {index + 1}</span>
                   <button
                     type="button"
@@ -355,7 +349,7 @@ function VocabularyDetailEditor({ entry, onSave, onCancel }) {
                     updateExample(item.id, "sentence", event.target.value)
                   }
                   rows={2}
-                  placeholder={isEnglish ? "輸入英文例句" : "輸入日文例句"}
+                  placeholder={meta.examplePlaceholder}
                   aria-label={`例句 ${index + 1}`}
                 />
 
@@ -380,16 +374,15 @@ function VocabularyDetailEditor({ entry, onSave, onCancel }) {
           <button
             type="button"
             className="detail-edit-add"
-            onClick={addExample}
+            onClick={() => addExample()}
           >
             + 新增例句
           </button>
-        </EditSection>
+        </DetailSection>
 
-        <EditSection
+        <DetailSection
           id="notes"
-          jaLabel="この他重要事項"
-          zhLabel="其他重要事項"
+          jaLabel="自由記述"
         >
           <textarea
             className="detail-edit-textarea"
@@ -400,7 +393,7 @@ function VocabularyDetailEditor({ entry, onSave, onCancel }) {
             placeholder="使用時的注意事項、相似表達或其他補充內容（選填）"
             aria-label="其他重要事項"
           />
-        </EditSection>
+        </DetailSection>
       </div>
     </form>
   );

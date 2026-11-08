@@ -1,53 +1,10 @@
 import { Link, useNavigate } from "react-router-dom";
 import { useState } from "react";
-import {
-  Languages,
-  BookOpen,
-  Code2,
-  NotebookPen,
-} from "lucide-react";
 
 import SearchBar from "../../components/SearchBar";
+import { homeCategories as knowledgeCategories } from "../../data/navigationData";
 
 import "./index.css";
-
-const knowledgeCategories = [
-  {
-    title: "英文單字",
-    subtitle: "English Vocabulary",
-    description: "整理英文詞彙、語源、常見搭配與實際用法。",
-    path: "/vocabulary/english",
-    icon: Languages,
-  },
-  {
-    title: "日文單字",
-    subtitle: "Japanese Vocabulary",
-    description: "整理日文詞彙、讀音與詳細解釋。",
-    path: "/vocabulary/japanese",
-    icon: Languages,
-  },
-  {
-    title: "文法筆記",
-    subtitle: "Grammar Notes",
-    description: "整理英文與日文文法、句型及使用規則。",
-    path: "/grammar",
-    icon: BookOpen,
-  },
-  {
-    title: "程式與技術筆記",
-    subtitle: "Programming & Technology",
-    description: "保存程式知識、技術文件與開發紀錄。",
-    path: "/programming",
-    icon: Code2,
-  },
-  {
-    title: "一般筆記",
-    subtitle: "General Notes",
-    description: "記錄靈感與其他想法。",
-    path: "/notes",
-    icon: NotebookPen,
-  },
-];
 
 function Home() {
   const navigate = useNavigate();
@@ -100,7 +57,7 @@ function Home() {
                 </div>
 
                 <div className="category-content">
-                  <h3>{category.title}</h3>
+                  <h3>{category.label}</h3>
 
                   <span className="category-subtitle">
                     {category.subtitle}

@@ -7,6 +7,7 @@ import com.vocabnotes.repository.*;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -76,13 +77,45 @@ public class VocabularyEntryService {
         VocabularyEntry savedEntry = vocabularyRepository.save(entry);
 
         // 先刪除原本的常見搭配和例句
-        collocationRepository.deleteByVocabularyEntryId(id);
-        exampleRepository.deleteByVocabularyEntryId(id);
+        collocationRepository.deleteAllByVocabularyEntryId(id);
+        exampleRepository.deleteAllByVocabularyEntryId(id);
 
         // 再儲存修改後的資料
         saveChildren(id, request);
 
         return toResponse(savedEntry);
+    }
+
+    // 批次新增：重複的單字跳過，單筆失敗不影響其他資料
+    public VocabularyBatchResponse batchCreate(List<VocabularyRequest> requests) {
+
+        int created = 0;
+        List<String> skipped = new ArrayList<>();
+        List<String> failed = new ArrayList<>();
+
+        for (VocabularyRequest request : requests) {
+
+            try {
+                if (request.term() == null || request.term().isBlank()) {
+                    failed.add("（空白單字）");
+                    continue;
+                }
+
+                if (vocabularyRepository.existsByLanguageAndTerm(
+                        request.language(), request.term())) {
+                    skipped.add(request.term());
+                    continue;
+                }
+
+                create(request);
+                created++;
+
+            } catch (Exception exception) {
+                failed.add(request.term() + "：" + exception.getMessage());
+            }
+        }
+
+        return new VocabularyBatchResponse(created, skipped, failed);
     }
 
     // 刪除單字

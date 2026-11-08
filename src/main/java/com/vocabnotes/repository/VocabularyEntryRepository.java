@@ -9,4 +9,6 @@ public interface VocabularyEntryRepository
         extends JpaRepository<VocabularyEntry, Long> {
 
     List<VocabularyEntry> findByLanguage(String language);
+
+    boolean existsByLanguageAndTerm(String language, String term);
 }

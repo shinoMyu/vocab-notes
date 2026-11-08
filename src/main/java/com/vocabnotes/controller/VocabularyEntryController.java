@@ -1,6 +1,7 @@
 
 package com.vocabnotes.controller;
 
+import com.vocabnotes.dto.VocabularyBatchResponse;
 import com.vocabnotes.dto.VocabularyRequest;
 import com.vocabnotes.dto.VocabularyResponse;
 import com.vocabnotes.service.VocabularyEntryService;
@@ -41,6 +42,14 @@ public class VocabularyEntryController {
     public VocabularyResponse create(
             @RequestBody VocabularyRequest request) {
         return vocabularyService.create(request);
+    }
+
+    // 批次新增：重複的單字跳過，個別失敗不影響其他
+    @PostMapping("/batch")
+    @ResponseStatus(HttpStatus.CREATED)
+    public VocabularyBatchResponse batchCreate(
+            @RequestBody List<VocabularyRequest> requests) {
+        return vocabularyService.batchCreate(requests);
     }
 
     // 修改單字

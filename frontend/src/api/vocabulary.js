@@ -50,6 +50,14 @@ export function updateVocabulary(id, data) {
   });
 }
 
+// 批次匯入單字（重複的由後端跳過）
+export function importVocabulary(entries) {
+  return request(`${VOCABULARY_PATH}/batch`, {
+    method: "POST",
+    body: JSON.stringify(entries),
+  });
+}
+
 export function deleteVocabulary(id) {
   return request(`${VOCABULARY_PATH}/${encodeURIComponent(id)}`, {
     method: "DELETE",

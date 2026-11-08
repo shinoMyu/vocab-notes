@@ -1,7 +1,14 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import { ChevronDown } from "lucide-react";
 
 import VocabularyDetailEditor from "./VocabularyDetailEditor";
-import { FREQUENCY_META, getPartOfSpeechLabel } from "../vocabularyMeta";
+import DetailSection from "./DetailSection";
+import {
+  FREQUENCY_META,
+  getLanguageMeta,
+  getPartOfSpeechLabel,
+} from "../vocabularyMeta";
+import { getDerivedTag, getTagColorStyle } from "../tagUtils";
 import "./VocabularyDetail.css";
 
 // 在例句中把目標單字標示出來
@@ -23,22 +30,9 @@ function highlightTerm(sentence, term) {
   );
 }
 
-function DetailSection({ id, jaLabel, zhLabel, children }) {
-  if (!children) return null;
-
-  return (
-    <section className={`detail-section section-${id}`}>
-      <h3 className="detail-section-title">
-        <span className="section-label-ja">{jaLabel}</span>
-        <span className="section-label-zh">{zhLabel}</span>
-      </h3>
-      {children}
-    </section>
-  );
-}
-
 function VocabularyDetail({
   entry,
+  tagColors,
   isEditing,
   onSave,
   onCancel,
@@ -49,6 +43,41 @@ function VocabularyDetail({
 }) {
   const [confirmingId, setConfirmingId] = useState(null);
   const isConfirmingDelete = confirmingId === entry.id;
+
+  const collocationListRef = useRef(null);
+
+  useEffect(() => {
+    const list = collocationListRef.current;
+    if (!list) return;
+
+    // 超過半欄寬的搭配自動佔滿整列，讓片語與解釋排在同一行
+    function updateSpans() {
+      const halfWidth = list.clientWidth / 2 - 10;
+
+      for (const item of list.children) {
+        // 暫時禁止折行，量出片語與解釋排在同一行所需的寬度
+        const previousWrap = item.style.flexWrap;
+        item.style.flexWrap = "nowrap";
+
+        const phrase = item.querySelector(":scope > strong");
+        const explanation = item.querySelector(":scope > span");
+
+        const naturalWidth =
+          (phrase?.offsetWidth ?? 0) +
+          (explanation ? explanation.offsetWidth + 8 : 0);
+
+        item.style.flexWrap = previousWrap;
+        item.style.gridColumn = naturalWidth > halfWidth ? "1 / -1" : "";
+      }
+    }
+
+    updateSpans();
+
+    const observer = new ResizeObserver(updateSpans);
+    observer.observe(list);
+
+    return () => observer.disconnect();
+  }, [entry.id, isEditing]);
 
   if (isEditing) {
     return (
@@ -61,9 +90,13 @@ function VocabularyDetail({
     );
   }
 
+  const meta = getLanguageMeta(entry.language);
+
   const frequency = entry.frequencyLevel
     ? FREQUENCY_META[entry.frequencyLevel]
     : null;
+
+  const derivedTag = getDerivedTag(entry.frequencyLevel);
 
   const sections = [
     {
@@ -80,6 +113,8 @@ function VocabularyDetail({
       id: "etymology",
       jaLabel: "語源",
       zhLabel: "字源與構詞",
+      // 語源是補充資訊，預設收合，點標題展開
+      collapsible: true,
       content: entry.etymology ? (
         <p className="detail-body">{entry.etymology}</p>
       ) : null,
@@ -90,7 +125,7 @@ function VocabularyDetail({
       zhLabel: "常見搭配詞",
       content:
         (entry.collocations ?? []).length > 0 ? (
-          <ul className="collocation-list">
+          <ul className="collocation-list" ref={collocationListRef}>
             {entry.collocations.map((item, index) => (
               <li
                 className="collocation-item"
@@ -130,8 +165,7 @@ function VocabularyDetail({
     },
     {
       id: "notes",
-      jaLabel: "この他重要事項",
-      zhLabel: "其他重要事項",
+      jaLabel: "自由記述",
       content: entry.usageNotes ? (
         <p className="detail-body">{entry.usageNotes}</p>
       ) : null,
@@ -141,9 +175,7 @@ function VocabularyDetail({
   return (
     <article className="vocabulary-detail">
       <div className="detail-actions">
-        <span className="language-badge">
-          {entry.language === "ja" ? "JAPANESE" : "ENGLISH"}
-        </span>
+        <span className="language-badge">{meta.badge}</span>
 
         <div className="detail-action-buttons">
           {isConfirmingDelete ? (
@@ -236,26 +268,57 @@ function VocabularyDetail({
               onClick={onOpenRelated}
               title={`前往 ${entry.relatedTerm}`}
             >
-              {entry.language === "ja" ? "EN" : "JP"}｜{entry.relatedTerm} ↗
+              {meta.counterpartShortBadge}｜{entry.relatedTerm} ↗
             </button>
+          )}
+
+          {derivedTag && (
+            <span
+              className="detail-tag-chip"
+              style={getTagColorStyle(tagColors, derivedTag)}
+              title="依使用頻度自動分類"
+            >
+              {derivedTag}
+            </span>
           )}
         </div>
       </header>
 
       <div className="detail-sections">
-        {sections.map(
-          (section) =>
-            section.content && (
-              <DetailSection
+        {sections.map((section) => {
+          if (!section.content) return null;
+
+          if (section.collapsible) {
+            return (
+              <details
                 key={section.id}
-                id={section.id}
-                jaLabel={section.jaLabel}
-                zhLabel={section.zhLabel}
+                className={`detail-section section-${section.id} is-collapsible`}
               >
+                <summary className="detail-section-title">
+                  <ChevronDown
+                    size={18}
+                    className="detail-section-caret"
+                    aria-hidden="true"
+                  />
+                  <span className="section-label-ja">{section.jaLabel}</span>
+                  <span className="section-label-zh">{section.zhLabel}</span>
+                </summary>
                 {section.content}
-              </DetailSection>
-            )
-        )}
+              </details>
+            );
+          }
+
+          return (
+            <DetailSection
+              key={section.id}
+              id={section.id}
+              jaLabel={section.jaLabel}
+              zhLabel={section.zhLabel}
+            >
+              {section.content}
+            </DetailSection>
+          );
+        })}
       </div>
     </article>
   );

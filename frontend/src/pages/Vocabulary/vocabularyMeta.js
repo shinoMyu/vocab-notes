@@ -1,3 +1,50 @@
+export const LANGUAGES = {
+  en: {
+    code: "en",
+    name: "英文",
+    title: "英文單字",
+    eyebrow: "ENGLISH VOCABULARY",
+    badge: "ENGLISH",
+    counterpartShortBadge: "JP",
+    formIntro: "記錄單字的意思、使用方式，以及實際對話中的例句。",
+    termLabel: "英文單字",
+    termPlaceholder: "輸入英文單字",
+    pronunciationLabel: "發音",
+    pronunciationPlaceholder: "例如：/meɪnˈteɪn/",
+    pronunciationEditPlaceholder: "輸入發音（選填）",
+    posLabel: "詞性",
+    counterpartLabel: "日文對應單字",
+    counterpartPlaceholder: "例如：維持する",
+    examplePlaceholder: "輸入英文例句",
+    hasEtymology: true,
+    hasCollocations: true,
+  },
+  ja: {
+    code: "ja",
+    name: "日文",
+    title: "日文單字",
+    eyebrow: "JAPANESE VOCABULARY",
+    badge: "JAPANESE",
+    counterpartShortBadge: "EN",
+    formIntro: "記錄日文單字的意思、品詞、使用頻率與例句。",
+    termLabel: "日文單字",
+    termPlaceholder: "輸入日文單字",
+    pronunciationLabel: "讀音",
+    pronunciationPlaceholder: "輸入假名讀音",
+    pronunciationEditPlaceholder: "輸入讀音（選填）",
+    posLabel: "品詞",
+    counterpartLabel: "英文對應單字",
+    counterpartPlaceholder: "例如：maintain",
+    examplePlaceholder: "輸入日文例句",
+    hasEtymology: false,
+    hasCollocations: false,
+  },
+};
+
+export function getLanguageMeta(language) {
+  return LANGUAGES[language] ?? LANGUAGES.en;
+}
+
 export const partOfSpeechOptions = {
   en: [
     { label: "名詞", value: "n." },

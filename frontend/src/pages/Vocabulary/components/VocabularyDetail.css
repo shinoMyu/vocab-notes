@@ -17,6 +17,12 @@
   gap: var(--spacing-2);
 }
 
+.detail-action-buttons .primary-button {
+  padding: 9px 14px;
+  border-radius: var(--radius-md);
+  font-size: var(--font-size-xs);
+}
+
 .detail-delete-confirm {
   display: flex;
   align-items: center;
@@ -118,6 +124,20 @@
   background: #e4eef6;
 }
 
+/* 標籤：頻率派生（預設樣式，色票由 JS 依所選顏色覆寫） */
+.detail-tag-chip {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 10px;
+  border: 1px solid #b8cbd9;
+  border-radius: 999px;
+  background: var(--color-accent-soft);
+  color: var(--color-text-active);
+  font-size: 11px;
+  font-weight: var(--font-weight-medium);
+  white-space: nowrap;
+}
+
 /* 分區：每個區塊有獨立視覺層次 */
 
 .detail-sections {
@@ -176,6 +196,44 @@
 .section-example .section-label-ja { color: #5d7490; }
 .section-notes .section-label-ja { color: #826a90; }
 
+/* 可摺疊區塊（語源）：預設收合，點標題展開 */
+.detail-section.is-collapsible summary {
+  cursor: pointer;
+  list-style: none;
+}
+
+.detail-section.is-collapsible summary::-webkit-details-marker {
+  display: none;
+}
+
+/* 收合時標題下方不留空隙 */
+.detail-section.is-collapsible:not([open]) .detail-section-title {
+  margin-bottom: 0;
+}
+
+/* 語源的標題用箭頭取代色條 */
+.detail-section.is-collapsible summary::before {
+  content: none;
+}
+
+.detail-section-caret {
+  flex-shrink: 0;
+  align-self: center;
+  margin-right: -6px;
+  color: var(--section-accent, var(--color-text-muted));
+  transition: transform var(--transition-fast);
+}
+
+.detail-section.is-collapsible:not([open]) .detail-section-caret {
+  transform: rotate(-90deg);
+}
+
+.detail-section.is-collapsible summary:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+  border-radius: var(--radius-sm);
+}
+
 .detail-body {
   margin: 0;
   color: var(--color-content-text);
@@ -195,20 +253,21 @@
 /* 常見搭配 */
 
 .collocation-list {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--spacing-2) var(--spacing-6);
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--spacing-2) var(--spacing-5);
   margin: 0;
   padding: 0;
   list-style: none;
 }
 
 .collocation-item {
-  display: inline-flex;
+  display: flex;
   align-items: baseline;
   flex-wrap: wrap;
-  gap: 10px;
-  max-width: 100%;
+  gap: 8px;
+  min-width: 0;
+  padding: 4px 0;
 }
 
 .collocation-item strong {
@@ -218,6 +277,7 @@
   color: #243b38;
   font-size: 15px;
   font-weight: 650;
+  white-space: nowrap;
 }
 
 .collocation-item span {
@@ -278,6 +338,9 @@
   color: var(--color-content-text);
   font-size: var(--font-size-sm);
   line-height: var(--line-height-relaxed);
+  /* 保留翻譯裡手動輸入的換行 */
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
 }
 
 /* ===== 詳情頁：行內編輯 ===== */
@@ -502,9 +565,39 @@
 
 .detail-edit-row {
   display: grid;
-  grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr) 30px;
+  grid-template-columns: 16px minmax(0, 1.1fr) minmax(0, 1fr) 30px;
   gap: var(--spacing-2);
   align-items: center;
+  border-radius: 6px;
+}
+
+/* 拖曳排序 */
+.detail-edit-drag {
+  display: grid;
+  place-items: center;
+  width: 16px;
+  height: 30px;
+  color: var(--color-text-muted);
+  font-size: 13px;
+  line-height: 1;
+  letter-spacing: -3px;
+  cursor: grab;
+  user-select: none;
+}
+
+.detail-edit-drag:active {
+  cursor: grabbing;
+}
+
+.detail-edit-row.is-dragging,
+.detail-edit-example.is-dragging {
+  opacity: 0.4;
+}
+
+.detail-edit-row.is-drop-target,
+.detail-edit-example.is-drop-target {
+  outline: 2px dashed var(--color-accent);
+  outline-offset: 2px;
 }
 
 .detail-edit-remove {
@@ -566,12 +659,13 @@
 .detail-edit-example-heading {
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  gap: 8px;
   color: var(--color-text-muted);
   font-size: 11px;
 }
 
 .detail-edit-remove-text {
+  margin-left: auto;
   padding: 0;
   border: none;
   background: none;
@@ -588,4 +682,10 @@
 .detail-edit-translation {
   color: var(--color-content-text);
   font-size: var(--font-size-sm);
+}
+
+@media (max-width: 560px) {
+  .collocation-list {
+    grid-template-columns: 1fr;
+  }
 }

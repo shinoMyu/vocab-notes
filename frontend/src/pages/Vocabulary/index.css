@@ -271,19 +271,10 @@
   }
 }
 
-@media (max-width: 768px) {
-  .vocabulary-page-heading {
-    align-items: flex-start;
-  }
-
-  .vocabulary-heading-info h1 {
-    font-size: var(--font-size-xl);
-  }
-}
-
 @media (max-width: 650px) {
   .vocabulary-page-heading {
-    flex-direction: column;
+    align-items: center;
+    gap: var(--spacing-3);
   }
 
   .vocabulary-browser.has-selection {
@@ -308,11 +299,5 @@
 
   .vocabulary-empty h2 {
     font-size: 21px;
-  }
-}
-
-@media (max-width: 480px) {
-  .vocabulary-page-heading > .primary-button {
-    width: 100%;
   }
 }
