@@ -131,7 +131,6 @@ export function getTagColorStyle(tagColors, tagName) {
 
   return {
     background: color.background,
-    borderColor: color.border,
     color: color.text,
   };
 }

@@ -1,20 +1,31 @@
-// import { Typography, Empty } from 'antd';
+import { useState } from "react";
 
-// const { Title, Text } = Typography;
+import GrammarList from "./components/GrammarList";
+import { loadGrammarNotes } from "./grammarData";
 
-// function Grammar() {
-//   return (
-//     <div className="page-container">
-//       <Title level={2}>文法筆記</Title>
-//       <Text type="secondary">
-//         記錄文法概念、例句、標籤與相關單字。
-//       </Text>
-//       <Empty
-//         description="文法筆記功能即將建立"
-//         style={{ marginTop: 80 }}
-//       />
-//     </div>
-//   );
-// }
+import "./shared.css";
+import "./index.css";
 
-// export default Grammar;
+function Grammar() {
+  const [notes] = useState(loadGrammarNotes);
+
+  return (
+    <div className="grammar-index">
+      <header className="grammar-page-heading">
+        <div className="grammar-heading-info">
+          <p className="grammar-eyebrow">GRAMMAR NOTES</p>
+
+          <h1>文法筆記</h1>
+
+          {notes.length > 0 && (
+            <span className="grammar-count">共 {notes.length} 篇筆記</span>
+          )}
+        </div>
+      </header>
+
+      <GrammarList notes={notes} />
+    </div>
+  );
+}
+
+export default Grammar;

@@ -53,7 +53,7 @@
 
 .search-bar-submit {
   flex-shrink: 0;
-  padding: 8px 16px;
+  padding: 5px 16px;
   border: 1px solid transparent;
   border-radius: var(--radius-sm);
   background: #8a97a4;

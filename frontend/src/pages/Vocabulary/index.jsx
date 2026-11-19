@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 
 import VocabularyList from "./components/VocabularyList";
@@ -32,9 +32,10 @@ function toRequest(formData, language) {
   };
 }
 
-function VocabularyWorkspace({ language, initialEntryId }) {
+function VocabularyWorkspace({ language, initialEntryId, initialEntryTerm }) {
   const navigate = useNavigate();
   const meta = getLanguageMeta(language);
+  const hasResolvedInitialTerm = useRef(false);
 
   const [entries, setEntries] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -76,6 +77,24 @@ function VocabularyWorkspace({ language, initialEntryId }) {
 
         setEntries(data);
         setLoadError("");
+
+        if (
+          !initialEntryId &&
+          initialEntryTerm &&
+          !hasResolvedInitialTerm.current
+        ) {
+          hasResolvedInitialTerm.current = true;
+
+          const match = data.find(
+            (entry) =>
+              entry.term.toLowerCase() === initialEntryTerm.toLowerCase()
+          );
+
+          if (match) {
+            setSelectedId(match.id);
+            setPageMode("detail");
+          }
+        }
       })
       .catch((requestError) => {
         if (cancelled) return;
@@ -90,7 +109,12 @@ function VocabularyWorkspace({ language, initialEntryId }) {
     return () => {
       cancelled = true;
     };
-  }, [language, reloadToken]);
+  }, [
+    language,
+    reloadToken,
+    initialEntryId,
+    initialEntryTerm,
+  ]);
 
   const selectedEntry =
     entries.find((entry) => entry.id === selectedId) || null;
@@ -345,6 +369,7 @@ function Vocabulary() {
       key={language}
       language={language}
       initialEntryId={location.state?.entryId ?? null}
+      initialEntryTerm={location.state?.entryTerm ?? null}
     />
   );
 }

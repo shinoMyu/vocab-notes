@@ -1,0 +1,677 @@
+/* ===== 編輯區 ===== */
+
+.grammar-editor {
+  padding: 22px clamp(18px, 3vw, 36px) var(--spacing-8);
+  animation: grammar-editor-in 0.24s ease;
+}
+
+@keyframes grammar-editor-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.grammar-editor-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: var(--spacing-2);
+  margin-bottom: 12px;
+}
+
+.grammar-editor-top-left {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+
+.grammar-back-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 5px 9px 5px 6px;
+  border: none;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--color-text-secondary);
+  font-family: inherit;
+  font-size: var(--font-size-xs);
+  cursor: pointer;
+  transition:
+    background var(--transition-fast),
+    color var(--transition-fast);
+}
+
+.grammar-back-button:hover {
+  background: var(--color-bg-hover);
+  color: var(--color-text-primary);
+}
+
+.grammar-back-button:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 1px;
+}
+
+.grammar-editor-top-divider {
+  width: 1px;
+  height: 16px;
+  background: var(--color-border);
+}
+
+.grammar-editor-status {
+  color: var(--color-text-muted);
+  font-size: 11px;
+  font-variant-numeric: tabular-nums;
+}
+
+.grammar-editor-status.is-dirty {
+  color: #8a6d63;
+}
+
+.grammar-editor-actions {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--spacing-2);
+}
+
+.grammar-editor-actions .grammar-button-primary,
+.grammar-editor-actions .grammar-button-secondary {
+  padding: 8px 12px;
+  font-size: var(--font-size-xs);
+}
+
+.grammar-delete-confirm {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 3px 3px 10px;
+  border: 1px solid #f0cfcb;
+  border-radius: var(--radius-md);
+  background: var(--color-danger-bg);
+}
+
+.grammar-delete-confirm > span {
+  color: var(--color-danger);
+  font-size: 11px;
+  white-space: nowrap;
+}
+
+.grammar-delete-confirm .grammar-button-danger,
+.grammar-delete-confirm .grammar-button-secondary {
+  padding: 5px 9px;
+  border-radius: var(--radius-sm);
+  font-size: 11px;
+}
+
+/* ===== 標題與 metadata ===== */
+
+.grammar-title-input {
+  display: block;
+  width: 100%;
+  padding: 0 0 8px;
+  border: none;
+  border-bottom: 1px dashed transparent;
+  outline: none;
+  background: transparent;
+  color: #202b34;
+  font-family: inherit;
+  font-size: clamp(28px, 2.6vw, 38px);
+  font-weight: 650;
+  letter-spacing: -0.4px;
+  line-height: 1.3;
+  transition: border-color var(--transition-fast);
+}
+
+.grammar-title-input::placeholder {
+  color: #b4bfc7;
+  font-weight: 500;
+}
+
+.grammar-title-input:focus {
+  border-bottom-color: var(--color-accent);
+}
+
+.grammar-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: 12px 24px;
+  margin-top: 14px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.grammar-meta-group {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  min-width: 0;
+}
+
+.grammar-meta-grow {
+  flex: 1;
+}
+
+.grammar-meta-label {
+  color: var(--color-text-muted);
+  font-size: 11px;
+  font-weight: var(--font-weight-bold);
+  letter-spacing: 0.06em;
+  white-space: nowrap;
+}
+
+.grammar-language-value {
+  padding: 3px 9px;
+  border-radius: 5px;
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-semibold);
+}
+
+.grammar-category-options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+}
+
+.grammar-category-chip {
+  padding: 3px 9px;
+  border: 1px solid transparent;
+  border-radius: 4px;
+  font-family: inherit;
+  font-size: 10px;
+  opacity: 0.7;
+  cursor: pointer;
+  transition:
+    opacity var(--transition-fast),
+    box-shadow var(--transition-fast);
+}
+
+.grammar-category-chip:hover {
+  opacity: 0.9;
+}
+
+.grammar-category-chip.is-active {
+  opacity: 1;
+  box-shadow: inset 0 0 0 1px currentColor;
+  font-weight: var(--font-weight-semibold);
+}
+
+/* ===== 工具列 ===== */
+
+.grammar-toolbar {
+  position: sticky;
+  top: 0;
+  z-index: 5;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 2px;
+  margin: 10px 0 2px;
+  padding: 6px 0;
+  border-bottom: 1px solid var(--color-border-light);
+  background: var(--color-bg-card);
+}
+
+.grammar-toolbar-group {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.grammar-toolbar-divider {
+  width: 1px;
+  height: 18px;
+  margin: 0 5px;
+  background: var(--color-border);
+}
+
+.grammar-toolbar-button {
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  padding: 0;
+  border: none;
+  border-radius: 5px;
+  background: transparent;
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  transition:
+    background var(--transition-fast),
+    color var(--transition-fast);
+}
+
+.grammar-toolbar-button:hover:not(:disabled) {
+  background: var(--color-bg-hover);
+  color: var(--color-text-primary);
+}
+
+.grammar-toolbar-button.is-active {
+  background: var(--color-accent-soft);
+  color: var(--color-text-active);
+}
+
+.grammar-toolbar-button:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+.grammar-toolbar-button:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 1px;
+}
+
+/* ===== 內文 ===== */
+
+.grammar-prose {
+  min-height: 320px;
+  padding: 12px 0 0;
+  outline: none;
+  color: var(--color-content-text);
+  font-size: 15px;
+  line-height: 1.95;
+  overflow-wrap: anywhere;
+}
+
+.grammar-prose > * {
+  margin: 0;
+}
+
+.grammar-prose > * + * {
+  margin-top: 0.85em;
+}
+
+.grammar-prose h1,
+.grammar-prose h2,
+.grammar-prose h3 {
+  color: var(--color-content-heading);
+  letter-spacing: -0.2px;
+  line-height: 1.45;
+}
+
+.grammar-prose h1 {
+  margin-top: 1.4em;
+  font-size: 1.5rem;
+  font-weight: 650;
+}
+
+.grammar-prose h2 {
+  margin-top: 1.6em;
+  padding-left: 10px;
+  border-left: 3px solid #a9bfce;
+  font-size: 1.12rem;
+  font-weight: 650;
+}
+
+.grammar-prose h3 {
+  margin-top: 1.3em;
+  font-size: 1rem;
+  font-weight: 650;
+}
+
+.grammar-prose p {
+  margin: 0;
+}
+
+.grammar-prose ul,
+.grammar-prose ol {
+  padding-left: 1.45em;
+}
+
+.grammar-prose li {
+  margin: 4px 0;
+}
+
+.grammar-prose li p {
+  margin: 0;
+}
+
+.grammar-prose strong {
+  color: #1f2b35;
+  font-weight: 650;
+}
+
+.grammar-prose em {
+  color: #4a5b6a;
+}
+
+.grammar-prose a {
+  color: #456d99;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.grammar-prose code {
+  padding: 2px 5px;
+  border-radius: 4px;
+  background: #eef2f5;
+  color: #3d4d5b;
+  font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+  font-size: 0.88em;
+}
+
+.grammar-prose pre {
+  padding: 14px 16px;
+  border-radius: 8px;
+  background: #28343d;
+  color: #e7edf2;
+  line-height: 1.7;
+  overflow-x: auto;
+}
+
+.grammar-prose pre code {
+  padding: 0;
+  background: transparent;
+  color: inherit;
+  font-size: 0.85rem;
+}
+
+.grammar-prose blockquote {
+  margin: 1em 0;
+  padding: 10px 14px;
+  border-left: 3px solid #a9bfce;
+  border-radius: 0 6px 6px 0;
+  background: #f5f8fa;
+  color: #4a5b6a;
+}
+
+.grammar-prose blockquote p {
+  margin: 0;
+}
+
+.grammar-prose hr {
+  margin: 1.6em 0;
+  border: none;
+  border-top: 1px solid var(--color-border);
+}
+
+.grammar-prose p.is-editor-empty:first-child::before,
+.grammar-prose p.is-empty:first-child::before {
+  content: attr(data-placeholder);
+  float: left;
+  height: 0;
+  color: var(--color-text-muted);
+  pointer-events: none;
+}
+
+/* ===== 相關單字 ===== */
+
+.grammar-related {
+  margin-top: 30px;
+  padding-top: 18px;
+  border-top: 1px solid var(--color-border-light);
+}
+
+.grammar-related-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--spacing-3);
+}
+
+.grammar-related-heading > div:first-child {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+
+.grammar-related-title {
+  color: var(--color-text-muted);
+  font-size: 11px;
+  font-weight: var(--font-weight-bold);
+  letter-spacing: 0.08em;
+}
+
+.grammar-related-count {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 17px;
+  height: 17px;
+  padding: 0 5px;
+  border-radius: 999px;
+  background: var(--color-bg-hover);
+  color: var(--color-text-secondary);
+  font-size: 10px;
+  font-variant-numeric: tabular-nums;
+}
+
+.grammar-related-add {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 5px 10px;
+  border: 1px dashed #c8d4dd;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--color-text-secondary);
+  font-family: inherit;
+  font-size: 11px;
+  cursor: pointer;
+  transition:
+    border-color var(--transition-fast),
+    background var(--transition-fast),
+    color var(--transition-fast);
+}
+
+.grammar-related-add:hover {
+  border-color: #9fb4c6;
+  background: #f6f9fb;
+  color: #33495c;
+}
+
+.grammar-related-picker {
+  position: relative;
+}
+
+.grammar-related-popover {
+  position: absolute;
+  right: 0;
+  bottom: calc(100% + 8px);
+  z-index: 30;
+  width: 280px;
+  padding: 10px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-bg-card);
+  box-shadow: 0 14px 36px rgba(20, 30, 40, 0.18);
+}
+
+.grammar-related-search {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 9px;
+  border: 1px solid var(--color-border);
+  border-radius: 6px;
+  background: #fbfcfd;
+  color: var(--color-text-muted);
+}
+
+.grammar-related-search input {
+  flex: 1;
+  min-width: 0;
+  border: none;
+  outline: none;
+  background: transparent;
+  color: var(--color-text-primary);
+  font-family: inherit;
+  font-size: var(--font-size-xs);
+}
+
+.grammar-related-search input::placeholder {
+  color: var(--color-text-muted);
+}
+
+.grammar-related-options {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  max-height: 220px;
+  margin-top: 8px;
+  overflow-y: auto;
+}
+
+.grammar-related-option {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto 16px;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  padding: 7px 8px;
+  border: none;
+  border-radius: 5px;
+  background: transparent;
+  font-family: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.grammar-related-option:hover {
+  background: var(--color-bg-hover);
+}
+
+.grammar-related-option.is-active {
+  background: #edf3f8;
+}
+
+.grammar-related-option-term {
+  color: var(--color-text-primary);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-semibold);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.grammar-related-option-meta {
+  color: var(--color-text-muted);
+  font-size: 10px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.grammar-related-option svg {
+  color: #568a83;
+}
+
+.grammar-related-empty {
+  margin: 8px 0 0;
+  padding: 8px;
+  color: var(--color-text-muted);
+  font-size: 11px;
+}
+
+.grammar-related-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.grammar-related-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  padding: 3px 5px 3px 10px;
+  border: 1px solid #c9d8e4;
+  border-radius: 999px;
+  background: #f2f7fb;
+}
+
+.grammar-related-chip.ja {
+  border-color: #e0d2c8;
+  background: #f8f3ef;
+}
+
+.grammar-related-chip-term {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 0;
+  border: none;
+  background: none;
+  color: #456d99;
+  font-family: inherit;
+  font-size: var(--font-size-xs);
+  cursor: pointer;
+}
+
+.grammar-related-chip.ja .grammar-related-chip-term {
+  color: #8a6d63;
+}
+
+.grammar-related-chip-term:hover {
+  text-decoration: underline;
+}
+
+.grammar-related-chip-remove {
+  display: grid;
+  place-items: center;
+  width: 20px;
+  height: 20px;
+  padding: 0;
+  border: none;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--color-text-muted);
+  cursor: pointer;
+}
+
+.grammar-related-chip-remove:hover {
+  background: rgba(0, 0, 0, 0.06);
+  color: var(--color-danger);
+}
+
+.grammar-related-empty-state {
+  margin: 10px 0 0;
+  color: var(--color-text-muted);
+  font-size: var(--font-size-xs);
+  line-height: 1.8;
+}
+
+/* ===== 響應式 ===== */
+
+@media (max-width: 820px) {
+  .grammar-editor {
+    padding: 18px 18px 28px;
+  }
+
+  .grammar-title-input {
+    font-size: clamp(24px, 5vw, 32px);
+  }
+
+  .grammar-prose {
+    min-height: 260px;
+  }
+}
+
+@media (max-width: 560px) {
+  .grammar-editor-top {
+    align-items: flex-start;
+  }
+
+  .grammar-meta {
+    gap: 10px;
+  }
+
+  .grammar-meta-grow {
+    flex-basis: 100%;
+  }
+
+  .grammar-related-popover {
+    right: auto;
+    left: 0;
+    width: min(280px, calc(100vw - 64px));
+  }
+}

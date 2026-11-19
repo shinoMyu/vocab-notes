@@ -1,0 +1,121 @@
+/* ===== 分類色 ===== */
+
+.note-tone-blue {
+  background: #e4edf8;
+  color: #456d99;
+}
+
+.note-tone-indigo {
+  background: #e8e9f8;
+  color: #555c99;
+}
+
+.note-tone-amber {
+  background: #f7efe0;
+  color: #8a6a35;
+}
+
+.note-tone-teal {
+  background: #e2f1ee;
+  color: #3f6f66;
+}
+
+.note-tone-rose {
+  background: #f6e9e6;
+  color: #8a6d63;
+}
+
+.note-tone-violet {
+  background: #efe8f6;
+  color: #6b5488;
+}
+
+.note-tone-slate {
+  background: #eef1f4;
+  color: #5a6672;
+}
+
+/* ===== 共用按鈕 ===== */
+
+.note-button-primary,
+.note-button-secondary,
+.note-button-danger {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: var(--spacing-2) var(--spacing-4);
+  border: 1px solid transparent;
+  border-radius: var(--radius-sm);
+  font-family: inherit;
+  font-size: var(--font-size-sm);
+  cursor: pointer;
+  text-decoration: none;
+  transition:
+    background var(--transition-fast),
+    border-color var(--transition-fast),
+    color var(--transition-fast);
+}
+
+.note-button-primary {
+  background: var(--color-button-primary);
+  color: #fff;
+}
+
+.note-button-primary:hover:not(:disabled) {
+  background: var(--color-button-primary-hover);
+}
+
+.note-button-primary:disabled {
+  background: #c3ccd4;
+  cursor: not-allowed;
+}
+
+.note-button-secondary {
+  border-color: var(--color-border);
+  background: var(--color-bg-card);
+  color: var(--color-text-primary);
+}
+
+.note-button-secondary:hover {
+  background: var(--color-bg-hover);
+}
+
+.note-button-danger {
+  background: var(--color-danger);
+  color: #fff;
+}
+
+.note-button-danger:hover {
+  background: #8f3f3b;
+}
+
+.note-icon-text-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 10px;
+  border: none;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--color-text-secondary);
+  font-family: inherit;
+  font-size: var(--font-size-xs);
+  cursor: pointer;
+  transition:
+    background var(--transition-fast),
+    color var(--transition-fast);
+}
+
+.note-icon-text-button:hover {
+  background: var(--color-danger-bg);
+  color: var(--color-danger);
+}
+
+.note-button-primary:focus-visible,
+.note-button-secondary:focus-visible,
+.note-button-danger:focus-visible,
+.note-icon-text-button:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 1px;
+}

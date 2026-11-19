@@ -1,0 +1,286 @@
+/* ===== 頁面外框 ===== */
+
+.general-notes {
+  width: 100%;
+  max-width: var(--content-max-width);
+  min-width: 0;
+  margin: 0 auto;
+}
+
+.general-notes-heading {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--spacing-4);
+  margin-bottom: var(--spacing-5);
+}
+
+.general-notes-heading-info {
+  min-width: 0;
+}
+
+.general-notes-heading-info h1 {
+  margin: 0;
+  color: var(--color-text-primary);
+  font-size: var(--font-size-2xl);
+  font-weight: var(--font-weight-semibold);
+}
+
+.general-notes-eyebrow {
+  margin: 0 0 var(--spacing-2);
+  color: var(--color-text-muted);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-semibold);
+  letter-spacing: 0.08em;
+}
+
+.general-notes-count {
+  display: inline-flex;
+  align-items: center;
+  width: fit-content;
+  margin-top: 10px;
+  padding: 4px 9px;
+  border-radius: 999px;
+  background: var(--color-bg-hover);
+  color: var(--color-text-secondary);
+  font-size: var(--font-size-xs);
+  font-variant-numeric: tabular-nums;
+}
+
+/* ===== 搜尋列 ===== */
+
+.general-notes-toolbar {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-3);
+  margin-bottom: var(--spacing-4);
+}
+
+.general-notes-search {
+  flex: 1;
+  min-width: 0;
+  max-width: 420px;
+}
+
+.general-notes-search .search-bar {
+  min-height: 42px;
+}
+
+.general-notes-autosave {
+  margin-left: auto;
+  color: var(--color-text-muted);
+  font-size: 11px;
+  white-space: nowrap;
+}
+
+/* ===== 筆記卡片 ===== */
+
+.general-notes-list {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.general-note-card {
+  padding: 16px 18px 14px;
+  border: 1px solid var(--color-border);
+  border-radius: 12px;
+  background: var(--color-bg-card);
+  transition:
+    border-color var(--transition-fast),
+    box-shadow var(--transition-fast);
+}
+
+.general-note-card:focus-within {
+  border-color: #c3d3df;
+  box-shadow: 0 1px 3px rgba(28, 38, 46, 0.06);
+}
+
+.general-note-card-top {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.general-note-title {
+  flex: 1;
+  min-width: 0;
+  padding: 2px 0;
+  border: none;
+  outline: none;
+  background: transparent;
+  color: var(--color-text-primary);
+  font-family: inherit;
+  font-size: var(--font-size-lg);
+  font-weight: 650;
+  line-height: 1.4;
+}
+
+.general-note-title::placeholder {
+  color: #b4bfc7;
+  font-weight: 500;
+}
+
+.general-note-time {
+  color: var(--color-text-muted);
+  font-size: 11px;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.general-note-delete-trigger {
+  display: grid;
+  place-items: center;
+  width: 26px;
+  height: 26px;
+  padding: 0;
+  border: none;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--color-text-muted);
+  opacity: 0;
+  cursor: pointer;
+  transition:
+    background var(--transition-fast),
+    color var(--transition-fast),
+    opacity var(--transition-fast);
+}
+
+.general-note-card:hover .general-note-delete-trigger,
+.general-note-delete-trigger:focus-visible {
+  opacity: 1;
+}
+
+.general-note-delete-trigger:hover {
+  background: var(--color-danger-bg);
+  color: var(--color-danger);
+}
+
+.general-note-delete-trigger:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 1px;
+}
+
+.general-note-delete-confirm {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 3px 3px 10px;
+  border: 1px solid #f0cfcb;
+  border-radius: var(--radius-md);
+  background: var(--color-danger-bg);
+}
+
+.general-note-delete-confirm > span {
+  color: var(--color-danger);
+  font-size: 11px;
+  white-space: nowrap;
+}
+
+.general-note-delete,
+.general-note-cancel {
+  padding: 5px 9px;
+  border-radius: var(--radius-sm);
+  font-family: inherit;
+  font-size: 11px;
+  cursor: pointer;
+}
+
+.general-note-delete {
+  border: 1px solid transparent;
+  background: var(--color-danger);
+  color: #fff;
+}
+
+.general-note-delete:hover {
+  background: #8f3f3b;
+}
+
+.general-note-cancel {
+  border: 1px solid var(--color-border);
+  background: var(--color-bg-card);
+  color: var(--color-text-primary);
+}
+
+.general-note-cancel:hover {
+  background: var(--color-bg-hover);
+}
+
+.general-note-body {
+  display: block;
+  width: 100%;
+  min-height: 64px;
+  margin-top: 6px;
+  padding: 4px 0 0;
+  border: none;
+  outline: none;
+  background: transparent;
+  color: var(--color-content-text);
+  font-family: inherit;
+  font-size: var(--font-size-sm);
+  line-height: 1.9;
+  resize: vertical;
+  field-sizing: content;
+}
+
+.general-note-body::placeholder {
+  color: var(--color-text-muted);
+}
+
+/* ===== 空白與無結果 ===== */
+
+.general-notes-empty {
+  padding: 36px 16px;
+  border: 1px dashed var(--color-border);
+  border-radius: var(--radius-lg);
+  color: var(--color-text-secondary);
+  font-size: var(--font-size-sm);
+  text-align: center;
+}
+
+.general-notes-empty p {
+  margin: 0 0 12px;
+  line-height: 1.8;
+}
+
+.general-notes-empty button:not(.note-button-primary) {
+  padding: 0;
+  border: none;
+  background: none;
+  color: #456d99;
+  font-family: inherit;
+  font-size: var(--font-size-xs);
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+/* ===== 響應式 ===== */
+
+@media (hover: none) {
+  .general-note-delete-trigger {
+    opacity: 1;
+  }
+}
+
+@media (max-width: 560px) {
+  .general-notes-heading {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .general-notes-toolbar {
+    flex-wrap: wrap;
+  }
+
+  .general-notes-autosave {
+    display: none;
+  }
+
+  .general-note-card {
+    padding: 14px;
+  }
+
+  .general-note-time {
+    display: none;
+  }
+}
